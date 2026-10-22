@@ -7,7 +7,9 @@ authors = [
     { name = "Rintaro", email = "Prashantsulaniya04@gmail.com" }
 ]
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "pypdf>=6.21.2",
+]
 
 [project.scripts]
 shiori-rag = "shiori_rag:main"
