@@ -2,7 +2,7 @@
 
 - **Status:** Accepted, subject to document-level licensing and feasibility checks
 - **Date:** 2026-10-20
-- **Decision owners:** Project author
+- **Decision owners:** Prashant
 
 ## Context
 
@@ -93,4 +93,4 @@ Before implementing the complete RAG pipeline:
 5. Create a small set of answerable and unanswerable questions.
 6. Confirm that the expected answers can be verified against the original pages.
 
-The decision remains subject to these feasibility checks; selecting this corpus does not imply that all documents have already passed them.
+
