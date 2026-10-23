@@ -1,8 +1,7 @@
-
 [project]
 name = "shiori-rag"
 version = "0.1.0"
-description = "Add your description here"
+description = "Bilingual (JA/EN) RAG over METI trade white papers, with page-level citations"
 readme = "README.md"
 authors = [
     { name = "Prashant", email = "257387003+Prashant-4527@users.noreply.github.com" }
