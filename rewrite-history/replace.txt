@@ -1,0 +1,2 @@
+regex:(?i)prashantsulaniya04@gmail\.com==>257387003+Prashant-4527@users.noreply.github.com
+literal:Rintaro==>Prashant

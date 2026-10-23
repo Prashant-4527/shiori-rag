@@ -2,7 +2,7 @@
 """Download the METI source PDFs for the bilingual (EN/JA) RAG corpus.
 
 Run from your repo root:
-    python download_meti.py              # core set (14 files)
+    python download_meti.py              # core set (8 files)
     python download_meti.py --extras     # core set plus the industry-facing extras
     python download_meti.py --dry-run    # print the plan, download nothing
     python download_meti.py --force      # re-download files that already exist
@@ -30,8 +30,8 @@ PAGE_BUDGET = 600  # total pages you want to keep CPU embedding quick
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
 
-LICENCE_METI = ("METI terms of use (Government of Japan Standard Terms v2.0, "
-                "CC BY-compatible); third-party material excluded")
+LICENCE_METI = ("METI Terms of Use (Public Data License 1.0); "
+                "third-party material excluded")
 LICENCE_MIC = ("Hosted on MIC site (soumu.go.jp): check its terms; "
                "English is a provisional translation")
 
@@ -42,10 +42,9 @@ except Exception:
     SSL_CTX = None
 
 
-
 FIELDS = ["filename", "doc", "corpus", "lang", "pair_id", "pair_quality",
-         "source_url", "url_verified", "accessed", "pages", "size_kb",
-         "sha256", "licence", "third_party_notes"]     
+          "source_url", "url_verified", "accessed", "pages", "size_kb",
+          "sha256", "licence", "third_party_notes"]
 
 
 # --------------------------------------------------------------------------
@@ -75,10 +74,10 @@ FILES = []
 D = "meti_trade_wp_2025"
 FILES += pair(D, "exec-summary",
               "https://www.meti.go.jp/files/900011799.pdf",
-              f"{WP25_JA}/2025_gaiyo.pdf", group="later")
+              f"{WP25_JA}/2025_gaiyo.pdf")
 FILES += pair(D, "overview-slides",
               "https://www.meti.go.jp/files/900011800.pdf",
-              f"{WP25_JA}/2025_ppt.pdf", group="later")
+              f"{WP25_JA}/2025_ppt.pdf")
 FILES += pair(D, "p2-c1-s4_supply-chain-critical-minerals",
               f"{WP25_EN}/2-1-4.pdf", f"{WP25_JA}/2-1-4.pdf", group="later")
 FILES += pair(D, "p2-c1-s5_industrial-policy",
@@ -90,7 +89,7 @@ FILES += pair(D, "p2-c2-s3_industry-case-studies",
                        "Part II, Chapter 2, Section 3 under this file name."), group="later")
 
 FILES += pair(D, "p2-c3-s5_global-south-co-creation",
-                 "<EN url you used>", "<JA url you used>", group="later")
+              f"{WP25_EN}/2-3-5.pdf", f"{WP25_JA}/2-3-5.pdf")
 
 # White Paper 2026: English side is the summary only so far
 FILES += pair("meti_trade_wp_2026", "summary",
@@ -101,7 +100,7 @@ FILES += pair("meti_trade_wp_2026", "summary",
 FILES += pair("meti_compliance_2025", "overview-slides",
               "https://www.meti.go.jp/english/report/data/2025WTO/pdf/20250611_01en.pdf",
               "https://www.meti.go.jp/shingikai/sankoshin/tsusho_boeki/"
-              "fukosei_boeki/report_2025/pdf/20250611_01.pdf")
+              "fukosei_boeki/report_2025/pdf/20250611_01.pdf", group="later")
 
 # Industry-facing extras (only with --extras)
 FILES += pair("mic-meti_ai-guidelines_v1-2", "overview",
@@ -121,6 +120,30 @@ FILES.append(entry("meti_compliance_2026", "overview-slides", "en",
                    "https://www.meti.go.jp/english/report/data/2026WTO/pdf/20260612_01en.pdf",
                    group="extras",
                    hint="Japanese counterpart not confirmed yet."))
+
+
+# How each URL was checked. "index-page" = listed on METI's own index page
+# (checked 2026-10-23). "fetched" = opened directly. Anything else is "no"
+# until a download succeeds or you open the link yourself.
+VERIFIED = {
+    "https://www.meti.go.jp/files/900011799.pdf": "index-page",
+    "https://www.meti.go.jp/files/900011800.pdf": "index-page",
+    f"{WP25_JA}/2025_gaiyo.pdf": "index-page",
+    f"{WP25_JA}/2025_ppt.pdf": "index-page",
+    f"{WP25_JA}/2-1-4.pdf": "index-page",
+    f"{WP25_JA}/2-1-5.pdf": "index-page",
+    f"{WP25_JA}/2-2-3.pdf": "index-page",
+    f"{WP25_JA}/2-3-5.pdf": "index-page",
+    "https://www.meti.go.jp/english/report/data/2026WTO/pdf/0630_001a.pdf": "fetched",
+}
+
+# How closely the English and Japanese files match.
+PAIR_QUALITY = {
+    "meti_trade_wp_2025:exec-summary": "full",
+    "meti_trade_wp_2025:overview-slides": "near",
+    "meti_trade_wp_2025:p2-c3-s5_global-south-co-creation": "full",
+    "meti_trade_wp_2026:summary": "partial",
+}
 
 
 # --------------------------------------------------------------------------
@@ -171,9 +194,7 @@ def sha256(path):
     with open(path, "rb") as fh:
         for block in iter(lambda: fh.read(1 << 20), b""):
             h.update(block)
-        return h.hexdigest()
-
-
+    return h.hexdigest()
 
 
 def load_manifest(path):
@@ -257,8 +278,9 @@ def main(argv=None):
             "licence": e["licence"],
             "third_party_notes": prev.get("third_party_notes", ""),
             "corpus": prev.get("corpus") or "trade",
-            "pair_quality": prev.get("pair_quality", ""),
-            "url_verified": "yes" if fetched else (prev.get("url_verified") or "no"),
+            "pair_quality": PAIR_QUALITY.get(e["pair_id"]) or prev.get("pair_quality", ""),
+            "url_verified": ("downloaded" if fetched
+                             else (VERIFIED.get(e["url"]) or prev.get("url_verified") or "no")),
             "sha256": sha256(dest),
          }
 
