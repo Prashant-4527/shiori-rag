@@ -1,0 +1,85 @@
+[
+  {
+    "id": "ja_exec_p1",
+    "file": "meti_trade_wp_2025_ja_exec-summary.pdf",
+    "page": 1,
+    "type": "prose",
+    "anchors": [
+      "【サプライチェーンの強靱性と重要鉱物】",
+      "炭素国境調整措置（CBAM）",
+      "中国の産業基盤"
+    ]
+  },
+  {
+    "id": "en_exec_p1",
+    "file": "meti_trade_wp_2025_en_exec-summary.pdf",
+    "page": 1,
+    "type": "prose",
+    "anchors": [
+      "[Supply Chain Resilience and Critical Minerals]",
+      "Carbon Border Adjustment Mechanism (CBAM)",
+      "[Industrial Policy and the International Economic Order]"
+    ]
+  },
+  {
+    "id": "ja_section_p3",
+    "file": "meti_trade_wp_2025_ja_p2-c3-s5_global-south-co-creation.pdf",
+    "page": 3,
+    "type": "two-column",
+    "anchors": [
+      "ASEAN での雇用が約 200 万人",
+      "現地調達額は約 25 兆円",
+      "現地地場企業からの調達"
+    ]
+  },
+  {
+    "id": "en_section_p2",
+    "file": "meti_trade_wp_2025_en_p2-c3-s5_global-south-co-creation.pdf",
+    "page": 2,
+    "type": "footnotes",
+    "anchors": [
+      "Japan’s outward FDIs to ASEAN countries",
+      "The data are based on reports and notifications",
+      "Three-Year New Asian Industrial Development Plan"
+    ]
+  },
+  {
+    "id": "ja_slide_typical",
+    "file": "meti_trade_wp_2025_ja_overview-slides.pdf",
+    "page": 0,
+    "type": "slide",
+    "anchors": [
+      "通商白書2025",
+      "2025年6月"
+    ]
+  },
+  {
+    "id": "ja26_chart_p40",
+    "file": "meti_trade_wp_2026_ja_summary.pdf",
+    "page": 40,
+    "type": "chart-labels",
+    "anchors": [
+      "通信, 31.8%",
+      "673.1億ドル"
+    ]
+  },
+  {
+    "id": "en26_chart_p30",
+    "file": "meti_trade_wp_2026_en_summary.pdf",
+    "page": 30,
+    "type": "chart-labels",
+    "anchors": [
+      "Japan’s Export to Emerging Countries",
+      "Vehicles 26.1%"
+    ]
+  },
+  {
+    "id": "ja26_divider_p51",
+    "file": "meti_trade_wp_2026_ja_summary.pdf",
+    "page": 51,
+    "type": "divider",
+    "anchors": [
+      "米国、EU、中国の新興国政策"
+    ]
+  }
+]

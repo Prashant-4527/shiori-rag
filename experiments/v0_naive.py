@@ -12,7 +12,17 @@ from sentence_transformers import SentenceTransformer
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:4b")
 TOP_K = 5
 
+if len(sys.argv) < 2:
+    print("Usage: python experiments/v0_naive.py <path_to_pdf>")
+    sys.exit(1)
+
 pdf_path = Path(sys.argv[1])
+
+if not pdf_path.is_file():
+    print(f"Error: PDF file not found: {pdf_path}")
+    sys.exit(1)
+
+
 reader = PdfReader(pdf_path)
 splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 
