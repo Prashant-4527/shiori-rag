@@ -1,8 +1,8 @@
 """Cheap checks for parser output. Smoke detectors, not ground truth."""
+
 import re
 import unicodedata
 from collections import Counter
-
 
 _CJK = r"\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff"
 _CJK_BREAK = re.compile(rf"(?<=[{_CJK}])\n(?=[{_CJK}])")
@@ -28,7 +28,6 @@ def cjk_line_breaks(text: str) -> int:
     return len(_CJK_BREAK.findall(text))
 
 
-
 def glued_footnotes(text: str) -> int:
     return len(_GLUED_EN.findall(text)) + len(_GLUED_JA.findall(text))
 
@@ -42,10 +41,11 @@ def repeated_lines(pages: list[str], min_share: float = 0.5) -> list[tuple[str, 
     counts: Counter[str] = Counter()
 
     for page in pages:
-        seen = {re.sub(r"\d+", "#", line.strip()) for line in page.splitlines() if line.strip()}
+        seen = {
+            re.sub(r"\d+", "#", line.strip())
+            for line in page.splitlines()
+            if line.strip()
+        }
         counts.update(seen)
     cutoff = max(2, int(len(pages) * min_share))
     return [(line, n) for line, n in counts.most_common() if n >= cutoff]
-
-
-

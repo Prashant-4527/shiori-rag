@@ -1,4 +1,5 @@
 """Thin wrappers so every PDF parser looks the same: path -> list of page texts."""
+
 from collections.abc import Callable
 from pathlib import Path
 

@@ -1,7 +1,5 @@
 # Data card: shiori-rag corpus
 
-> Draft written on Day 2. Read every line, check it against the sources, and rewrite it in your own words. Items marked TODO need a decision or a check from you.
-
 ## 1. Purpose
 
 The corpus is the set of documents the system may answer from. It is used to build the retrieval index and to write the evaluation questions. Nothing outside this set counts as evidence.
@@ -48,7 +46,7 @@ TODO: decide how the demo treats chart-label text. Proposal: index it for retrie
 
 Manual download from METI's English and Japanese white paper pages, then `scripts/download_meti.py` to name the files and record page counts and SHA-256 hashes. URLs were checked against METI's index pages on 2026-10-23. File sizes of five files match the sizes METI lists. The EN 2-3-5 file and the JA 2026 summary still need a browser check (`url_verified` = no).
 
-## 7. Known issues (from inspection on Day 2)
+## 7. Known issues 
 
 - Printed page numbers differ from file page numbers. The Part II Chapter 3 Section 5 PDFs print page 276 (JA) and 337 (EN) on a file that has pages 1 to 19 (ADR-008).
 - Footnote numbers are glued to words in the text layer ("later.344", "...グループ）345の").
@@ -56,8 +54,6 @@ Manual download from METI's English and Japanese white paper pages, then `script
 - pypdf puts a newline at every visual line end, including in the middle of Japanese words.
 - Slides contain thousands of characters of chart labels. EN 2026 slide 30 and JA 2026 slide 40 each have more than 13,000 characters.
 - Section-divider slides contain almost no text (EN 2026 pp. 1 and 39, JA 2026 pp. 1 and 51).
-
-TODO: add what the Day 3 parser comparison finds.
 
 ## 8. Reproducing
 
