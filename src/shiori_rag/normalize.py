@@ -26,11 +26,11 @@ def join_lines(lines: list[str]) -> str:
         if not out:
             out = line
         elif out.endswith("-") and line[0].islower() and out[-2:-1].isalpha():
-            out = out[:1] + line
+            out = out[:-1] + line
         elif _is_cjk(out[-1]) or _is_cjk(line[0]):
             out += line
         else:
-            out += "" + line
+            out += " " + line
     return out
 
 

@@ -8,7 +8,7 @@ import pymupdf
 from shiori_rag.normalize import join_lines
 
 SUPERSCRIPT = 1  # bit set in a span's flags for superscript text
-EDGE = 0.06  # top and bottom 6% of the page hold running headers and page numbers
+EDGE = 0.07  # top and bottom 6% of the page hold running headers and page numbers
 
 
 @dataclass

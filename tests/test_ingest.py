@@ -24,3 +24,12 @@ def test_japanese_paragraphs_have_no_midword_line_breaks():
         re.search(r"[\u3040-\u9fff]\n[\u3040-\u9fff]", p.text) for p in pages
     )
     assert [p.pdf_page for p in pages] == [1, 2, 3, 4]
+
+
+JA_REPORT = RAW_DIR / "meti_trade_wp_2025_ja_p2-c3-s5_global-south-co-creation.pdf"
+
+
+@pytest.mark.skipif(not JA_REPORT.exists(), reason="corpus not downloaded")
+def test_printed_page_numbers_are_not_left_in_the_text():
+    pages = extract_pages(JA_REPORT, drop_edges=True)
+    assert not any(re.search(r"(^|\n)\d{3}$", p.text) for p in pages)
