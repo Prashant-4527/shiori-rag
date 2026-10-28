@@ -5,6 +5,7 @@ from functools import lru_cache
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from transformers import AutoTokenizer
+from math import ceil
 
 from shiori_rag.chunking import chunk_corpus, read_pages
 

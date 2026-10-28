@@ -51,7 +51,9 @@ for probe in probes:
             }
         )
 
-with (EXP / "day3_results.csv").open("w", encoding="utf-8-sig", newline="") as fh:
+with (EXP / "parser_results.csv").open(
+    "w", encoding="utf-8-sig", newline=""
+) as fh:
     writer = csv.DictWriter(fh, fieldnames=list(rows[0]))
     writer.writeheader()
     writer.writerows(rows)

@@ -245,3 +245,208 @@ Users see "page 3 of this file", which differs from the printed number.
 
 ## Revisit if
 We ingest the full white paper as one file, where printed and file numbers can be mapped.
+
+
+# ADR-009: Use PyMuPDF Structured Extraction as the Initial PDF Processing Baseline
+
+- **Status:** Proposed
+- **Date:** 2026-10-28
+- **Decision owner:** Prashant
+
+## Context
+
+Shiori-RAG processes Japanese and English METI publications in several PDF layouts, including prose documents, two-column reports, presentation slides, and chart-heavy pages.
+
+The extraction pipeline must do more than retrieve text. It must preserve PDF page boundaries, maintain useful reading order, handle Japanese text without breaking words at visual line endings, and retain reliable document and page metadata for citations.
+
+The project initially compared four PDF text-extraction implementations:
+
+- `pypdf`
+- `pdfplumber`
+- PyMuPDF using `page.get_text("text")`
+- PyMuPDF using `page.get_text("text", sort=True)`
+
+These alternatives were evaluated using selected pages and checks for expected text anchors, Japanese line breaks, glued footnote markers, suspicious characters, and extraction time.
+
+However, the parser benchmark must be validated before its results can establish a winner. If expected text anchors do not match, the comparison cannot reliably measure extraction quality.
+
+## Decision
+
+Use PyMuPDF's structured extraction as the initial production baseline while completing the comparative evaluation.
+
+The implementation in `src/shiori_rag/extract.py` uses `page.get_text("dict", sort=True)` to access blocks, lines, spans, and their bounding boxes.
+
+This enables the pipeline to:
+
+1. Preserve one extracted text record per PDF page.
+2. inspect the spatial position of lines.
+3. remove numeric superscript markers identified through span flags.
+4. optionally remove lines near the top and bottom margins of report pages.
+5. normalize visual line breaks while preserving Japanese text continuity.
+6. retain the original PDF page index for downstream citations.
+
+The simpler parser implementations remain available in `src/shiori_rag/parsers.py` for benchmarking.
+
+The current implementation is a baseline, not a claim that PyMuPDF has been proven superior for every document layout.
+
+## Rationale
+
+A structured extraction interface exposes layout information that is useful for handling recurring headers, footnote markers, and page-edge content.
+
+This is particularly valuable for Shiori because its corpus contains both Japanese and English documents, and poor extraction can damage retrieval quality before embeddings or the language model are involved.
+
+Keeping alternative parsers available also makes it possible to revisit the choice using reproducible measurements rather than intuition.
+
+## Validation Requirements
+
+Before accepting this decision, the parser benchmark must:
+
+- Use valid, verified page numbers and expected text anchors.
+- Report meaningful anchor-hit results for each probe.
+- Include prose, two-column reports, slides, chart-heavy pages, and pages with footnotes.
+- Compare reading order, Japanese line breaks, unwanted text, and extraction speed.
+- Inspect the extracted text against the corresponding original PDF pages.
+- Document known failures rather than treating character count as a measure of correctness.
+
+The benchmark results must be regenerated from the corrected probes and saved consistently to `experiments/parser_results.csv`.
+
+## Trade-offs
+
+- Structured extraction provides access to layout information but requires more implementation and testing than a simple text-extraction call.
+- Reading-order sorting does not guarantee perfect reconstruction of every multi-column page or complex slide.
+- Superscript-marker removal relies on PDF formatting metadata and may require additional validation.
+- Margin-based filtering can remove legitimate content if a document uses an unusual page layout.
+- No text-based parser can guarantee accurate interpretation of every chart, table, or scanned page.
+
+## Revisit If
+
+- The corrected benchmark shows that another extraction strategy performs materially better on the fixed probe set.
+- New document layouts expose systematic extraction failures.
+- Page-level citation accuracy is compromised by extraction or page-number handling.
+
+Any change to the selected extraction strategy should be supported by recorded benchmark results and regression tests.
+
+
+
+# ADR-010: Preserve Page-Level Ingestion Records and Flag Potentially Noisy Pages
+
+- **Status:** Accepted
+- **Date:** 2026-10-28
+- **Decision owner:** Prashant
+
+## Context
+
+Shiori-RAG ingests Japanese and English METI publications with different document layouts and text characteristics.
+
+The corpus includes prose, presentation slides, section reports, chart-heavy pages, running headers, footers, and numeric superscript markers. These characteristics can introduce noise into the retrieval index or cause the system to overlook useful evidence.
+
+The ingestion pipeline therefore needs to preserve page-level provenance while identifying pages that may be unsuitable for ordinary text-based retrieval.
+
+The current corpus contains eight PDF files and 213 pages.
+
+A recorded ingestion run produced the following aggregate results:
+
+| Measurement | Result |
+|---|---:|
+| PDF documents | 8 |
+| PDF pages processed | 213 |
+| Extracted display-text characters | 299,495 |
+| Pages flagged as near-empty | 3 |
+| Pages flagged as chart-heavy | 24 |
+| Removed numeric superscript markers | 25 |
+| Removed top- or bottom-edge lines | 64 |
+
+These are operational measurements from the current corpus and configuration, not independent measures of extraction accuracy.
+
+## Decision
+
+Represent ingestion output as one JSONL record per PDF page in `data/processed/pages.jsonl`.
+
+Each record must retain document and provenance information, including:
+
+- Document identifier and source filename.
+- Corpus identifier and language.
+- PDF page index.
+- Layout classification.
+- Display text and normalized search text.
+- Character count and quality flags.
+- Counts of removed superscript markers and edge lines.
+
+Continue using layout-specific extraction and normalization rules.
+
+The initial layout mapping is:
+
+- Executive summaries: `prose`
+- Section reports: `report`
+- Overview slides and summaries: `slides`
+
+Apply the existing quality flags as follows.
+
+### Near-empty pages
+
+A page with fewer than 80 display-text characters receives the `near_empty` flag.
+
+Keep these page records in the processed output for traceability and debugging, but exclude them from chunk generation because covers and section-divider slides are unlikely to provide useful textual evidence.
+
+### Chart-heavy pages
+
+A page whose digit share exceeds 0.25 receives the `chart_heavy` flag.
+
+Retain these pages and their flags in the processed data. Do not treat the flag as proof that a page is unusable.
+
+The current chunking pipeline carries this flag forward. Before a public demo displays excerpts from chart-heavy chunks, the application must apply an explicit content-display policy that accounts for extraction quality and third-party material restrictions recorded in `docs/DATA_CARD.md`.
+
+### Page-edge filtering
+
+Apply the existing top- and bottom-edge filtering only to the `report` layout, where recurring headers and printed page numbers have been observed.
+
+Keep edge filtering disabled for the other layouts until their extraction behavior justifies a different policy.
+
+### Page citations
+
+Retain the one-based PDF page index as the citation page number, following ADR-008. Ingestion and normalization must not merge page boundaries or replace PDF page indexes with printed page numbers.
+
+## Rationale
+
+Page-level records make the ingestion pipeline auditable and reproducible. They allow extraction failures to be traced to a specific source file and page without losing provenance during normalization or chunking.
+
+Quality flags separate detection from filtering. This avoids permanently discarding potentially useful material based on simple heuristics before its value has been evaluated.
+
+Layout-specific rules also reduce the risk of applying report-specific assumptions to presentation slides or prose documents.
+
+## Trade-offs
+
+- The 80-character near-empty threshold is heuristic and may classify some useful pages incorrectly.
+- Digit share is an imperfect indicator of chart-heavy content. A page can contain a chart without exceeding the threshold, or contain many digits without being chart noise.
+- A fixed margin threshold can remove legitimate content from documents with unusual layouts.
+- Keeping noisy pages in the processed corpus requires downstream components to respect their flags where appropriate.
+- Preserving page-level metadata increases the amount of data stored but supports traceability and citation verification.
+
+## Validation and Reproducibility
+
+The current ingestion run establishes a baseline of eight documents, 213 PDF pages, and 299,495 extracted characters.
+
+Future changes should verify that:
+
+1. Page counts match the manifest and source files.
+2. Each processed record points to the correct filename and one-based PDF page.
+3. Quality flags are computed consistently from the display text.
+4. Removed-marker and edge-line counts are recorded for inspection.
+5. Normalization preserves Japanese text continuity and intended paragraph boundaries.
+6. Chart-heavy and near-empty pages are handled according to their documented policies.
+7. The ingestion tests pass after changes to extraction or normalization.
+
+The following commands reproduce the ingestion workflow after downloading the source PDFs:
+
+```powershell
+uv run python scripts/download_meti.py
+uv run pytest
+uv run python -m shiori_rag.ingest
+```
+
+## Revisit If
+
+- The document corpus expands to additional layouts or publishers.
+- Manual inspection reveals recurring false positives or false negatives in the page flags.
+- Evaluation shows that chart-heavy pages improve retrieval when processed with a different strategy.
+- Extraction changes affect page-level citation correctness or the recorded ingestion baseline.
