@@ -46,7 +46,7 @@ vectors = model.encode(
 
 
 while True:
-    question = input("\nQuestionn (blank to quit): ").strip()
+    question = input("\nQuestion (blank to quit): ").strip()
     if not question:
         break
 

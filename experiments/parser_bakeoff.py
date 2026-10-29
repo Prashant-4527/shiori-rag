@@ -51,6 +51,59 @@ for probe in probes:
             }
         )
 
+# Fail closed: a probe with zero anchor matches for every parser is invalid
+# evidence for comparing parsers. Diagnose whether the page is wrong or the anchors
+# are absent from the source PDF before allowing a new CSV to be written.
+invalid_probes = []
+for probe in probes:
+    scores = {}
+    elsewhere = {}
+    for parser in PARSERS:
+        pages, _ = parse_cached(probe["file"], parser)
+        target_text = pages[probe["page"] - 1] if probe["page"] <= len(pages) else ""
+        hits = anchor_hits(target_text, probe["anchors"])
+        scores[parser] = f"{hits}/{len(probe['anchors'])}"
+        if hits == 0:
+            page_hits = [
+                (page_no, anchor_hits(text, probe["anchors"]))
+                for page_no, text in enumerate(pages, start=1)
+            ]
+            page_hits = [(page_no, count) for page_no, count in page_hits if count > 0]
+            if page_hits:
+                best = sorted(page_hits, key=lambda item: (-item[1], item[0]))[:3]
+                elsewhere[parser] = ", ".join(
+                    f"p.{page_no}={count}/{len(probe['anchors'])}"
+                    for page_no, count in best
+                )
+    if not any(int(score.split("/", maxsplit=1)[0]) > 0 for score in scores.values()):
+        invalid_probes.append((probe, scores, elsewhere))
+
+if invalid_probes:
+    details = []
+    for probe, scores, elsewhere in invalid_probes:
+        details.append(
+            f"  - {probe['id']} (configured page {probe['page']}): "
+            + ", ".join(f"{parser}={score}" for parser, score in scores.items())
+        )
+        if elsewhere:
+            details.extend(
+                f"      {parser} has anchor hits elsewhere: {pages}"
+                for parser, pages in elsewhere.items()
+            )
+        else:
+            details.append(
+                "      No configured anchor was found on any page; re-check the "
+                "probe text and source PDF."
+            )
+    raise SystemExit(
+        "ERROR: refusing to write experiments/parser_results.csv because one or "
+        "more probes have zero anchor hits across every parser.\n"
+        + "\n".join(details)
+        + "\n\nInspect experiments/out/<probe>__<parser>.txt, correct the page "
+        "or anchors in experiments/probes.json, and rerun the benchmark. The old "
+        "CSV has been left untouched and must not be treated as a valid comparison."
+    )
+
 with (EXP / "parser_results.csv").open(
     "w", encoding="utf-8-sig", newline=""
 ) as fh:

@@ -1,11 +1,10 @@
 """Compare chunk settings on the ingested pages, measured in tokens."""
 
 import statistics as st
-from functools import lru_cache
+from functools import cache
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from transformers import AutoTokenizer
-from math import ceil
 
 from shiori_rag.chunking import chunk_corpus, read_pages
 
@@ -13,7 +12,7 @@ tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-m3")
 END = tuple("。！？!?.」）)]】")
 
 
-@lru_cache(maxsize=None)
+@cache
 def tokens(text: str) -> int:
     return len(tokenizer.encode(text, add_special_tokens=False))
 

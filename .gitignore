@@ -12,4 +12,4 @@ wheels/
 data/raw/
 data/processed/
 *.faiss
-experiements/out/
+experiments/out/

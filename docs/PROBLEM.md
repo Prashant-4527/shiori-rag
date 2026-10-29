@@ -2,7 +2,7 @@
 
 ## 1. Background
 
-METI and JETRO publish policy reports, white papers, trade analyses, and industry research related to Japan. These publications can contain hundreds of pages of Japanese text, tables, charts, and specialized terminology.
+METI publishes policy reports, white papers, trade analyses, and industry research related to Japan. These publications can contain hundreds of pages of Japanese text, tables, charts, and specialized terminology.
 
 Readers may include policy analysts, researchers, students, international professionals, and companies investigating Japan's economy, industries, trade, and technology policies.
 
@@ -122,7 +122,7 @@ The refusal metrics must be evaluated together: a system that refuses every ques
 
 The initial version will not attempt to:
 
-1. Index every publication from METI, JETRO, or other Japanese institutions.
+1. Index every publication from METI or other Japanese institutions.
 2. Guarantee accurate extraction from every scanned PDF, complex table, chart, or image.
 3. Replace professional policy analysis or official government publications.
 4. Answer arbitrary questions using unrestricted internet search.

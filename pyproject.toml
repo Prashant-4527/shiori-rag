@@ -33,3 +33,8 @@ dev = [
     "pytest>=9.1.1",
     "ruff>=0.17.1",
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# The downloader is intentionally invoked as "python scripts/download_meti.py".
+# Page counting is best-effort and must not make a successful download fail.
+"scripts/download_meti.py" = ["BLE001", "EXE001"]
