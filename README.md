@@ -4,6 +4,10 @@ Bilingual Japanese / English question answering over METI trade white papers, de
 
 > **Status:** Research prototype in progress. The parser benchmark and naive baseline are not validated yet; do not treat the current parser scores as a result.
 
+   ![Approval gate: a denied command is not executed](images/approval-denied.png)
+   ![Sandbox: a read outside the project folder is blocked](images/sandbox-blocked.png)
+
+
 ## Project milestones
 
 - [x] Curate a small METI-only document corpus and record file provenance in `data/manifest.csv`.

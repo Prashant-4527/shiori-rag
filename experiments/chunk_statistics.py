@@ -28,7 +28,9 @@ def summary(label, sizes_by_lang, ends):
 
 
 pages = read_pages()
-print(f"{'config (tokens)':<24}{'chunks':>7}{'median':>8}{'p95':>7}{'max':>7}{'clean':>9}")
+print(
+    f"{'config (tokens)':<24}{'chunks':>7}{'median':>8}{'p95':>7}{'max':>7}{'clean':>9}"
+)
 for size, overlap in [(128, 16), (256, 32), (512, 64)]:
     chunks = chunk_corpus(pages, size, overlap, length=tokens)
     by_lang = {}

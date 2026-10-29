@@ -26,7 +26,9 @@ def _sudachi():
 def japanese_words(text: str) -> list[str]:
     from sudachipy import tokenizer
 
-    return [m.surface() for m in _sudachi().tokenize(text, tokenizer.Tokenizer.SplitMode.C)]
+    return [
+        m.surface() for m in _sudachi().tokenize(text, tokenizer.Tokenizer.SplitMode.C)
+    ]
 
 
 def split_sentences(paragraph: str, lang: str) -> list[str]:
@@ -39,7 +41,9 @@ def split_sentences(paragraph: str, lang: str) -> list[str]:
 
 def split_long(sentence: str, max_size: int, lang: str, length: Length) -> list[str]:
     """Last resort for a sentence longer than max_size: cut it between words, never inside one."""
-    words, glue = (japanese_words(sentence), "") if lang == "ja" else (sentence.split(" "), " ")
+    words, glue = (
+        (japanese_words(sentence), "") if lang == "ja" else (sentence.split(" "), " ")
+    )
     pieces, current = [], ""
     for word in words:
         candidate = current + glue + word if current else word
@@ -53,7 +57,9 @@ def split_long(sentence: str, max_size: int, lang: str, length: Length) -> list[
     return pieces
 
 
-def pack_sentences(items: list[tuple[str, bool]], max_size: int, overlap: int, length: Length):
+def pack_sentences(
+    items: list[tuple[str, bool]], max_size: int, overlap: int, length: Length
+):
     """Group (sentence, starts_paragraph) items into chunks of at most max_size.
 
     The last sentences of a chunk (up to `overlap` in size) are repeated at the start of the next one.
@@ -92,7 +98,9 @@ def render(chunk: list[tuple[str, bool]], lang: str) -> str:
     return out
 
 
-def chunk_page(page: dict, max_size: int, overlap: int, length: Length = len) -> list[dict]:
+def chunk_page(
+    page: dict, max_size: int, overlap: int, length: Length = len
+) -> list[dict]:
     lang = page["lang"]
     items, hard_split = [], 0
     for paragraph in page["text"].split("\n\n"):
