@@ -38,3 +38,12 @@ def test_search_form_normalizes_width():
 def test_digit_share():
     assert digit_share("1234") == 1.0
     assert digit_share("") == 0.0
+
+
+def test_search_form_removes_spaces_next_to_japanese_characters():
+    assert (
+        search_form("2024 年の世界経済は 3.3％の底堅い成長")
+        == "2024年の世界経済は3.3%の底堅い成長"
+    )
+    assert search_form("ASEAN での雇用") == "ASEANでの雇用"
+    assert search_form("growth was solid") == "growth was solid"

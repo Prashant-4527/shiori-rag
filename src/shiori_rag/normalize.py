@@ -7,6 +7,8 @@ _CJK = r"\u3000-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uff00-\uffef"
 _IS_CJK = re.compile(f"[{_CJK}]")
 _INVISIBLE = re.compile("[\u200b\u200c\u200d\u2060\ufeff\u00ad]")
 _SPACES = re.compile(r"[ \t\u00a0\u3000]+")
+_SPACES = re.compile(r"[ \t\u00a0\u3000]+")
+_CJK_GAP = re.compile(rf"(?<=[{_CJK}]) +| +(?=[{_CJK}])")
 
 
 def _is_cjk(char: str) -> bool:
@@ -42,11 +44,13 @@ def clean_display(text: str) -> str:
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
-def search_form(text: str) -> str:
-    """Form used for indexing: NFKC with spaces collapsed. Never shown to users."""
-    return _SPACES.sub(" ", unicodedata.normalize("NFKC", text)).strip()
-
-
 def digit_share(text: str) -> float:
     """Share of characters that are digits. High values mark chart-label pages."""
     return sum(ch.isdigit() for ch in text) / max(len(text), 1)
+
+
+def search_form(text: str) -> str:
+    """NFKC, spaces collapsed, and no spaces next to Japanese characters.
+    Never shown to users."""
+    text = _SPACES.sub(" ", unicodedata.normalize("NFKC", text)).strip()
+    return _CJK_GAP.sub("", text)

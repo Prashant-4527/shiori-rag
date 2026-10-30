@@ -1,0 +1,5 @@
+{"id": "q003", "lang": "en", "type": "numeric", "corpus": "trade",
+ "question": "What share of Japan's exports ...", "answer": "46.4% from domestic services, 38.2% from domestic manufacturing",
+ "answerable": true,
+ "evidence": [{"pages": [{"doc_id": "meti_trade_wp_2025_en_exec-summary", "pdf_page": 4}, ...]}],
+ "origin": "claude_draft", "verified": false, "split": "test", "notes": ""}
