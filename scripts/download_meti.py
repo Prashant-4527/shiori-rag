@@ -45,7 +45,7 @@ try:  # helps on macOS Python installs that lack system certificates
     import certifi
 
     SSL_CTX = ssl.create_default_context(cafile=certifi.where())
-except Exception:
+except ImportError:  # certifi is optional; use the system certificate store when absent
     SSL_CTX = None
 
 

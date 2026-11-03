@@ -1,6 +1,7 @@
 # ADR-001: Select METI and JETRO Public Documents as the Initial Corpus
 
-- **Status:** Accepted, subject to document-level licensing and feasibility checks
+- **Status:** Initial decision; partially superseded by ADR-006.
+- **Current scope:** The public corpus is METI-hosted only unless separate permission applies; see ADR-006.
 - **Date:** 2026-10-20
 - **Decision owners:** Prashant
 
@@ -36,7 +37,7 @@ Matching Japanese and English versions of the same report would be useful for ad
 
 ## Decision
 
-Use publicly accessible METI and JETRO documents as the initial target corpus.
+Use METI-hosted documents as the initial public target corpus. ADR-006 supersedes the JETRO portion of this original decision; JETRO material is excluded unless written permission is obtained.
 
 Start with a small, curated collection of reports that can be inspected and evaluated reliably. Confirm document availability, publication metadata, text extractability, and applicable reuse terms before indexing each document.
 
@@ -86,7 +87,7 @@ If only some documents are unsuitable, replace those documents before reconsider
 
 Before implementing the complete RAG pipeline:
 
-1. Identify a small set of candidate METI and JETRO reports.
+1. Identify a small set of candidate METI reports. Consider other publishers only after document-specific licensing checks.
 2. Record their titles, URLs, publication dates, languages, page counts, and usage terms.
 3. Inspect representative pages containing ordinary text, tables, charts, and any scanned content.
 4. Verify whether matching English versions exist for selected Japanese reports.
@@ -350,10 +351,10 @@ A recorded ingestion run produced the following aggregate results:
 |---|---:|
 | PDF documents | 8 |
 | PDF pages processed | 213 |
-| Extracted display-text characters | 299,495 |
+| Extracted display-text characters | 290,495 |
 | Pages flagged as near-empty | 3 |
 | Pages flagged as chart-heavy | 24 |
-| Removed numeric superscript markers | 25 |
+| Removed numeric superscript markers | 28 |
 | Removed top- or bottom-edge lines | 64 |
 
 These are operational measurements from the current corpus and configuration, not independent measures of extraction accuracy.
@@ -424,7 +425,7 @@ Layout-specific rules also reduce the risk of applying report-specific assumptio
 
 ## Validation and Reproducibility
 
-The current ingestion run establishes a baseline of eight documents, 213 PDF pages, and 299,495 extracted characters.
+The current ingestion run establishes a baseline of eight documents, 213 PDF pages, and 290,495 extracted characters.
 
 Future changes should verify that:
 

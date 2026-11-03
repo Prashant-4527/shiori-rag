@@ -1,11 +1,10 @@
 """Compare chunk settings on the ingested pages, measured in tokens."""
 
 import statistics as st
-from functools import lru_cache
+from functools import cache
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from transformers import AutoTokenizer
-from math import ceil
 
 from shiori_rag.chunking import chunk_corpus, read_pages
 
@@ -13,7 +12,7 @@ tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-m3")
 END = tuple("。！？!?.」）)]】")
 
 
-@lru_cache(maxsize=None)
+@cache
 def tokens(text: str) -> int:
     return len(tokenizer.encode(text, add_special_tokens=False))
 
@@ -29,7 +28,9 @@ def summary(label, sizes_by_lang, ends):
 
 
 pages = read_pages()
-print(f"{'config (tokens)':<24}{'chunks':>7}{'median':>8}{'p95':>7}{'max':>7}{'clean':>9}")
+print(
+    f"{'config (tokens)':<24}{'chunks':>7}{'median':>8}{'p95':>7}{'max':>7}{'clean':>9}"
+)
 for size, overlap in [(128, 16), (256, 32), (512, 64)]:
     chunks = chunk_corpus(pages, size, overlap, length=tokens)
     by_lang = {}

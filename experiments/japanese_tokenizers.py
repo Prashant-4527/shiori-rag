@@ -14,7 +14,9 @@ unidic = Tagger()
 
 with (PROCESSED_DIR / "pages.jsonl").open(encoding="utf-8") as fh:
     pages = [json.loads(line) for line in fh]
-paragraphs = [para for p in pages if p["lang"] == "ja" for para in p["text_search"].split("\n\n")]
+paragraphs = [
+    para for p in pages if p["lang"] == "ja" for para in p["text_search"].split("\n\n")
+]
 print(f"{len(paragraphs)} Japanese paragraphs\n")
 
 
@@ -38,9 +40,13 @@ for name, fn in taggers.items():
     tokens = [tok for para in paragraphs for tok in fn(para) if tok.strip()]
     vocab = Counter(tokens)
     singles = sum(1 for t in tokens if len(t) == 1) / len(tokens)
-    print(f"{name:<18}{len(tokens):>8}{len(vocab):>8}{singles:>10.1%}{sum(map(len, tokens)) / len(tokens):>9.2f}")
+    print(
+        f"{name:<18}{len(tokens):>8}{len(vocab):>8}{singles:>10.1%}{sum(map(len, tokens)) / len(tokens):>9.2f}"
+    )
 
-sentence = next(p for p in paragraphs if "経済産業" in p or "サプライチェーン" in p)[:60]
+sentence = next(p for p in paragraphs if "経済産業" in p or "サプライチェーン" in p)[
+    :60
+]
 print(f"\nSample: {sentence}")
 for name, fn in taggers.items():
     print(f"  {name:<18}{' | '.join(fn(sentence))}")
