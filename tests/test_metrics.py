@@ -1,21 +1,37 @@
 import math
 import random
 
-from shiori_rag.metrics import bootstrap_ci, evaluate, ranked_pages, score_question, summarize
+from shiori_rag.metrics import (
+    bootstrap_ci,
+    evaluate,
+    ranked_pages,
+    score_question,
+    summarize,
+)
 
 A, B, C, D = ("d", 1), ("d", 2), ("d", 3), ("d", 4)
 
 
 def question(*groups, answerable=True, qid="q", lang="en", kind="factual"):
     return {
-        "id": qid, "lang": lang, "type": kind, "split": "dev", "question": "?",
+        "id": qid,
+        "lang": lang,
+        "type": kind,
+        "split": "dev",
+        "question": "?",
         "answerable": answerable,
-        "evidence": [{"pages": [{"doc_id": d, "pdf_page": p} for d, p in g]} for g in groups],
+        "evidence": [
+            {"pages": [{"doc_id": d, "pdf_page": p} for d, p in g]} for g in groups
+        ],
     }
 
 
 def test_ranked_pages_keeps_best_rank_and_drops_repeats():
-    chunks = [{"doc_id": "d", "pdf_page": 1}, {"doc_id": "d", "pdf_page": 1}, {"doc_id": "d", "pdf_page": 2}]
+    chunks = [
+        {"doc_id": "d", "pdf_page": 1},
+        {"doc_id": "d", "pdf_page": 1},
+        {"doc_id": "d", "pdf_page": 2},
+    ]
     assert ranked_pages(chunks) == [A, B]
 
 
@@ -51,7 +67,10 @@ def test_evaluate_skips_unanswerable_and_calls_the_retriever_with_language():
         seen.append(lang)
         return [{"doc_id": "d", "pdf_page": 1}]
 
-    qs = [question([A], lang="ja", qid="q1"), question(answerable=False, qid="q2", kind="unanswerable")]
+    qs = [
+        question([A], lang="ja", qid="q1"),
+        question(answerable=False, qid="q2", kind="unanswerable"),
+    ]
     rows = evaluate(qs, retrieve, k=5)
     assert [r["id"] for r in rows] == ["q1"] and seen == ["ja"]
 

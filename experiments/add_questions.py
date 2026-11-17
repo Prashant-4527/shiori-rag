@@ -21,7 +21,9 @@ def search(phrase: str) -> list[tuple[dict, str]]:
         text = page["text_search"].lower()
         at = text.find(needle)
         if at != -1:
-            hits.append((page, text[max(0, at - 40) : at + len(needle) + 40].replace("\n", " ")))
+            hits.append(
+                (page, text[max(0, at - 40) : at + len(needle) + 40].replace("\n", " "))
+            )
     return hits
 
 
@@ -37,14 +39,20 @@ def pick_group() -> dict | None:
         for number, (page, snippet) in enumerate(hits, start=1):
             name = page["doc_id"].replace("meti_trade_wp_", "")
             print(f"  {number:>2}. {name} p{page['pdf_page']}: ...{snippet}...")
-        chosen = ask("Numbers of the pages that really support the answer (comma separated)")
+        chosen = ask(
+            "Numbers of the pages that really support the answer (comma separated)"
+        )
         picks = [
             hits[int(n) - 1][0]
             for n in chosen.split(",")
             if n.strip().isdigit() and 0 < int(n) <= len(hits)
         ]
         if picks:
-            return {"pages": [{"doc_id": p["doc_id"], "pdf_page": p["pdf_page"]} for p in picks]}
+            return {
+                "pages": [
+                    {"doc_id": p["doc_id"], "pdf_page": p["pdf_page"]} for p in picks
+                ]
+            }
 
 
 def main() -> None:
@@ -60,9 +68,18 @@ def main() -> None:
         while (group := pick_group()) is not None:
             evidence.append(group)
     new = {
-        "id": f"q{number:03d}", "lang": lang, "type": kind, "corpus": "trade",
-        "question": question, "answer": answer, "answerable": kind != "unanswerable",
-        "evidence": evidence, "origin": "hand", "verified": True, "split": split, "notes": "",
+        "id": f"q{number:03d}",
+        "lang": lang,
+        "type": kind,
+        "corpus": "trade",
+        "question": question,
+        "answer": answer,
+        "answerable": kind != "unanswerable",
+        "evidence": evidence,
+        "origin": "hand",
+        "verified": True,
+        "split": split,
+        "notes": "",
     }
     problems = validate([*questions, new], pages)
     if problems:

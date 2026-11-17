@@ -21,7 +21,9 @@ def ranked_pages(chunks: list[dict]) -> list[Page]:
 
 
 def evidence_groups(question: dict) -> list[set[Page]]:
-    return [{(p["doc_id"], p["pdf_page"]) for p in g["pages"]} for g in question["evidence"]]
+    return [
+        {(p["doc_id"], p["pdf_page"]) for p in g["pages"]} for g in question["evidence"]
+    ]
 
 
 def score_question(question: dict, ranked: list[Page], k: int) -> dict:
@@ -36,7 +38,9 @@ def score_question(question: dict, ranked: list[Page], k: int) -> dict:
                 dcg += 1 / math.log2(rank + 1)
                 break
     ideal = sum(1 / math.log2(rank + 1) for rank in range(1, min(len(groups), k) + 1))
-    first = next((rank for rank, page in enumerate(top, start=1) if page in union), None)
+    first = next(
+        (rank for rank, page in enumerate(top, start=1) if page in union), None
+    )
     return {
         "hit": float(first is not None),
         "recall": len(covered) / len(groups),
@@ -54,16 +58,25 @@ def evaluate(questions: list[dict], retrieve: Retriever, k: int = 10) -> list[di
             continue
         ranked = ranked_pages(retrieve(q["question"], q["lang"]))
         rows.append(
-            {"id": q["id"], "lang": q["lang"], "type": q["type"], "split": q["split"],
-             **score_question(q, ranked, k)}
+            {
+                "id": q["id"],
+                "lang": q["lang"],
+                "type": q["type"],
+                "split": q["split"],
+                **score_question(q, ranked, k),
+            }
         )
     return rows
 
 
-def bootstrap_ci(values: list[float], n: int = 1000, seed: int = 0) -> tuple[float, float]:
+def bootstrap_ci(
+    values: list[float], n: int = 1000, seed: int = 0
+) -> tuple[float, float]:
     """95% interval for the mean, by resampling the questions with replacement."""
     rng = random.Random(seed)
-    means = sorted(sum(rng.choices(values, k=len(values))) / len(values) for _ in range(n))
+    means = sorted(
+        sum(rng.choices(values, k=len(values))) / len(values) for _ in range(n)
+    )
     return means[int(n * 0.025)], means[int(n * 0.975) - 1]
 
 

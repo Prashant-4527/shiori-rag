@@ -35,10 +35,16 @@ for q in questions:
 
 print("Pages used as evidence (pages that are not near-empty):")
 for doc_id in dict.fromkeys(p["doc_id"] for p in pages):
-    content = [p["pdf_page"] for p in pages if p["doc_id"] == doc_id and "near_empty" not in p["flags"]]
+    content = [
+        p["pdf_page"]
+        for p in pages
+        if p["doc_id"] == doc_id and "near_empty" not in p["flags"]
+    ]
     missing = [n for n in content if n not in used[doc_id]]
     name = doc_id.replace("meti_trade_wp_", "")
-    print(f"  {name[:50]:<52}{len(content) - len(missing):>3}/{len(content):<3} never used: {ranges(missing)}")
+    print(
+        f"  {name[:50]:<52}{len(content) - len(missing):>3}/{len(content):<3} never used: {ranges(missing)}"
+    )
 
 counts = {
     "questions": len(questions),
